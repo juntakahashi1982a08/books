@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="css/sample.css">
+  <title>GoogleBook検索</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="js/jquery-3.5.1.min.js"></script>
+</head>
+
+<body>
+
+  <header>
+    <h1>GoogleBooks検索</h1>
+    <p>
+      <input type="text" id="keyword">
+      <!-- 薄文字・上書きで"検索ワード"をvalue(default)表示したい -->
+      <button id="readbook">検索</button>
+      <button id="delete">更新</button>
+      <!-- // 上記基本機能はOK→しかし検索のたびに下に追加されていってしまう。前のは消して上書きしてほしい。appendを変える？
+      // でもhtmlにすると１回の検索時に10個羅列されない（すべて上書きされて１個しか表示されない）→一旦「結果全削除ボタン」を設置 -->
+    </p>
+  </header>
+
+  <main>
+    <ul>
+      <li width="100px"></li>
+      <li>リンク</li>
+      <li>題名</li>
+      <li>著者</li>
+      <li>出版社</li>
+      <li>発行日</li>
+      <!-- <li></li> -->
+    </ul>
+    <!-- // セル幅の画像部分だけ狭くしたい。cssのulのtableがfixedの100%だとcellのwidth効かない。autoだと各行各々の幅になり縦に揃わない。widthをpx表記しても全幅が変わるだけでセルは同様。 -->
+    <p id="content"></p>
+  </main>
+
+  <script>
+    // 手順
+    // 1. axios を使って 情報を取得する
+    // 2. JSONデータ構造を基に本のタイトルを取得する
+    // 3. 本のタイトル情報をHTMLに出力する
+    // ---ここからは課題！
+    // 4. クリックイベントで括る
+    // 5. id="keyword"の入力値を取得 → URLの"?q=jquery"の"queryの文字を取得した入力値（変数）に変える"
+    // 6. 出版社も表示してみよう！（データ構造はconsole.logで確認！！）
+
+    // axios を使う[開始]
+    $("#readbook").on('click', function () {
+      // alert('click!');
+      // axiosを使って情報を取得する
+
+      // $("#content").remove();
+
+      const url = "https://www.googleapis.com/books/v1/volumes?q=" + $("#keyword").val();
+      axios.get(url).then(function (res) {
+        console.log(res.data);
+        const items = res.data.items
+        // 配列の中身を一つずつ取り出してみて表示する
+        items.forEach(function (item) {
+          $("#content").append("<ul width='100px'><li><img src="
+            + item.volumeInfo.imageLinks.smallThumbnail + "height='40px' width='40px'></li><li><a href="
+            + item.volumeInfo.canonicalVolumeLink + '>リンク</a><br><a href='
+            + item.volumeInfo.previewLink + '>プレビュー</a></li><li>'
+            + item.volumeInfo.title + "</li><li>"
+            + item.volumeInfo.authors + "</li><li>"
+            + item.volumeInfo.publisher + "</li><li>"
+            + item.volumeInfo.publishedDate + "</li></ul>");
+          // + item.volumeInfo.publishedDate + "</li><li>"
+          // + substr(item.volumeInfo.description,0,100) + "</li></ul>");
+
+          // description表示させたいが全文だと長い。最初の100文字表示は。
+          // sortingしたい→table th trの必要あり？sortableとjsで
+
+          //  for繰り返し文と同じ意味↑
+          // 配列[]の活用で簡便化？
+        })
+      })
+    })
+
+    $("#delete").on('click', function () {
+      // alert('click!');
+      $("#content").remove();
+    });
+    // 一度removeしたら二度とappendできなくなってる→更新ボタン押せばできるが…
+    // つか更新ボタン押したら元々削除されるから同じ…
+
+    // $(document).on('click', '#content', function () {
+    //   delete btn をclickの情報を追加
+    //   $(this).remove();
+    // });
+
+
+    // axios を使う[終了]
+
+  </script>
+</body>
+
+</html>
